@@ -1,20 +1,35 @@
-from odoo import fields,models,api
+# -*- coding: utf-8 -*-
+from odoo import fields, models
 
 
 class TestResultLine(models.Model):
     _name = 'test.result.line'
-    _description = 'Test Result Lines'
+    _description = 'Test Result Line'
 
-    result_id = fields.Many2one('test.result',string="Result ID",ondelete='cascade')
-    test_id = fields.Many2one('test.type',string="Test ID")
-    parameter_id = fields.Many2one('test.parameter',string='Parameter ID')
-    result_value = fields.Char(string="Result Value")
-    reference_range = fields.Char(string="Reference Range")
-    test_unit = fields.Char(string="Unit")
+    result_id = fields.Many2one(
+        'test.result', string="Result ID", ondelete='cascade', required=True
+    )
+    parameter_id = fields.Many2one(
+        'test.parameter', string='Parameter', required=True
+    )
+    result_value = fields.Char(string="Result")
 
-    @api.onchange('parameter_id')
-    def _onchange_parameter_id(self):
-        for rec in self:
-            if rec.parameter_id:
-                rec.reference_range = rec.parameter_id.reference_range
-                rec.test_unit = rec.parameter_id.test_unit
+    # --- Related fields for display and consistency ---
+
+    normal_range = fields.Char(
+        string="Normal Range",
+        related='parameter_id.normal_range',
+        readonly=True,
+        store=True,
+    )
+    uom_id = fields.Many2one(
+        related='parameter_id.uom_id',
+        string="Unit of Measure",
+        readonly=True,
+        store=True,
+    )
+    test_type_id = fields.Many2one(
+        related='parameter_id.test_type_id',
+        string="Test Type",
+        store=True,
+    )
