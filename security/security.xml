@@ -15,9 +15,9 @@
             <field name="implied_ids" eval="[(4,ref('base.group_user'))]"/>
         </record>
         <!-- Group for Laboratory Manager -->
-        <record id="group_lab_manger" model="res.groups">
+        <record id="group_lab_manager" model="res.groups">
             <field name="name">Manger</field>
-            <field name="category_id" ref="rawdah_laboratory_mangement.module_category_laboratory"/>
+            <field name="category_id" ref="rawdah_laboratory_management.module_category_laboratory"/>
             <!-- A Manager is also a User -->
             <field name="implied_ids" eval="[(4,ref('group_lab_user'))]"/>
             <!-- This gives the manager all administrative rights for this app -->

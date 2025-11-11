@@ -5,7 +5,6 @@
         <field name="name">test.result.tree</field>
         <field name="model">test.result</field>
         <field name="arch" type="xml">
-            <!-- Add more useful columns to the list view -->
             <tree string="Test Results" decoration-info="state == 'draft'" decoration-muted="state == 'cancel'">
                 <field name="result_no"/>
                 <field name="patient_name"/>
@@ -22,37 +21,35 @@
         <field name="arch" type="xml">
             <form string="Lab Test Result">
                 <header>
-                    <!-- Workflow buttons that match our refined model -->
-                    <button name="action_start_test" type="object" string="Start Test" class="btn-primary" states="draft"/>
-                    <button name="action_mark_done" type="object" string="Mark as Done" class="btn-primary" states="in_progress"/>
-                    <button name="action_generate_bill" type="object" string="Generate Bill" class="btn-success" states="done"/>
-                    <button name="action_cancel" type="object" string="Cancel" states="draft,in_progress"/>
-                    <button name="action_reset_to_draft" type="object" string="Reset to Draft" states="cancel,billed"/>
+                    <!-- REPLACED 'states' with 'invisible' for Odoo 17 -->
+                    <button name="action_start_test" type="object" string="Start Test" class="btn-primary" invisible="[('state', '!=', 'draft')]"/>
+                    <button name="action_mark_done" type="object" string="Mark as Done" class="btn-primary" invisible="[('state', '!=', 'in_progress')]"/>
+                    <button name="action_generate_bill" type="object" string="Generate Bill" class="btn-success" invisible="[('state', '!=', 'done')]"/>
+                    <button name="action_cancel" type="object" string="Cancel" invisible="[('state', 'not in', ['draft', 'in_progress'])]"/>
+                    <button name="action_reset_to_draft" type="object" string="Reset to Draft" invisible="[('state', 'not in', ['cancel', 'billed'])]"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,done,billed"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
                         <h1><field name="result_no" readonly="1"/></h1>
                     </div>
-                    <!-- Make fields readonly based on state to prevent editing after confirmation -->
+                    <!-- REPLACED 'attrs' with direct dynamic attributes for Odoo 17 -->
                     <group>
                         <group>
-                            <field name="patient_name" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                            <field name="age" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                            <field name="gender" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                            <!-- Use a better widget for selecting tests -->
-                            <field name="test_ids" widget="many2many_tags" options="{'no_create_edit': True}" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="patient_name" readonly="[('state', '!=', 'draft')]"/>
+                            <field name="age" readonly="[('state', '!=', 'draft')]"/>
+                            <field name="gender" readonly="[('state', '!=', 'draft')]"/>
+                            <field name="test_ids" widget="many2many_tags" options="{'no_create_edit': True}" readonly="[('state', '!=', 'draft')]"/>
                         </group>
                         <group>
-                            <field name="phone" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                            <field name="email" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="phone" readonly="[('state', '!=', 'draft')]"/>
+                            <field name="email" readonly="[('state', '!=', 'draft')]"/>
                             <field name="result_date" readonly="1"/>
                         </group>
                     </group>
                     <notebook>
                         <page string="Result Lines" name="result_lines">
-                            <!-- The onchange method will populate this automatically -->
-                            <field name="result_line_ids" attrs="{'readonly': [('state', 'in', ['done', 'billed', 'cancel'])]}">
+                            <field name="result_line_ids" readonly="[('state', 'in', ['done', 'billed', 'cancel'])]">
                                 <tree editable="bottom">
                                     <field name="parameter_id" readonly="1"/>
                                     <field name="result_value"/>
