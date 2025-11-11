@@ -27,6 +27,7 @@ Key Features:
         'uom'
     ],
     'data': [
+        'security/security.xml',
         'security/ir.model.access.csv',
         'data/sequence.xml',
         'views/test_type_views.xml',
