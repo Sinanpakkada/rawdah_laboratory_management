@@ -23,7 +23,8 @@ Key Features:
     'sequence': 10,
     'depends': [
         'base',
-        'mail'
+        'mail',
+        'uom'
     ],
     'data': [
         'security/ir.model.access.csv',
