@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id,perm_read,perm_write,perm_create,perm_unlink
+access_test_type,test.type,model_test_type,,1,1,1,1
+access_test_parameter,test.parameter,model_test_parameter,,1,1,1,1
+access_test_result,test.result,model_test_result,,1,1,1,1
+access_test_result_line,test.result.line,model_test_result_line,,1,1,1,1
+
+
+
+
+
+
+

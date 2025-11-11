@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem id="menu_lab_root" name="Lab" sequence="1"/>
+
+    <menuitem id="menu_lab_config" name="Configuration" sequence="10" parent="menu_lab_root"/>
+    <menuitem id="menu_lab_test_type" name="Test Types" parent="menu_lab_config" action="action_test_type"/>
+
+    <menuitem id="menu_lab_test_result_root" name="Test Result" sequence="1" parent="menu_lab_root"/>
+    <menuitem id="menu_lab_test_result" name="Test Results" parent="menu_lab_test_result_root" action="action_test_result"/>
+</odoo>

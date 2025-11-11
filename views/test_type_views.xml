@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--test type tree-->
+    <record id="test_type_view_tree" model="ir.ui.view">
+        <field name="name">test.type.tree</field>
+        <field name="model">test.type</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="test_type_name"/>
+                <field name="test_amount"/>
+            </tree>
+        </field>
+    </record>
+    <!--Test Type Form-->
+    <record id="test_type_view_form" model="ir.ui.view">
+        <field name="name">test.type.form</field>
+        <field name="model">test.type</field>
+        <field name="arch" type="xml">
+            <form string="Test Type">
+                <sheet>
+                    <group>
+                        <field name="test_type_name"/>
+                        <field name="test_amount"/>
+                    </group>
+                    <notebook>
+                        <page string="Parameters">
+                            <field name="parameter_ids">
+                                <tree editable="bottom">
+                                    <field name="test_parameter_name"/>
+                                    <field name="reference_range"/>
+                                    <field name="test_unit"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" options="{'open_attachments': True}"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+    <record id="action_test_type" model="ir.actions.act_window">
+        <field name="name">Test Types</field>
+        <field name="res_model">test.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>
