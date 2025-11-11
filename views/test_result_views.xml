@@ -1,78 +1,88 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- test result tree-->
+    <!-- Tree View for test.result -->
     <record id="test_result_view_tree" model="ir.ui.view">
         <field name="name">test.result.tree</field>
         <field name="model">test.result</field>
         <field name="arch" type="xml">
-            <tree>
+            <!-- Add more useful columns to the list view -->
+            <tree string="Test Results" decoration-info="state == 'draft'" decoration-muted="state == 'cancel'">
                 <field name="result_no"/>
                 <field name="patient_name"/>
-                <field name="state"/>
+                <field name="result_date"/>
+                <field name="state" widget="badge" decoration-success="state == 'done' or state == 'billed'" decoration-warning="state == 'in_progress'"/>
             </tree>
         </field>
     </record>
 
-    <record id="view_test_result_form" model="ir.ui.view">
+    <!-- Form View for test.result -->
+    <record id="test_result_view_form" model="ir.ui.view">
         <field name="name">test.result.form</field>
         <field name="model">test.result</field>
         <field name="arch" type="xml">
             <form string="Lab Test Result">
                 <header>
-                    <button name="action_generate_bill" type="object" string="Generate Bill" class="btn-primary"/>
-                    <button name="action_generate_result" type="object" string="Generate Result" class="btn-success"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,bill,result"/>
+                    <!-- Workflow buttons that match our refined model -->
+                    <button name="action_start_test" type="object" string="Start Test" class="btn-primary" states="draft"/>
+                    <button name="action_mark_done" type="object" string="Mark as Done" class="btn-primary" states="in_progress"/>
+                    <button name="action_generate_bill" type="object" string="Generate Bill" class="btn-success" states="done"/>
+                    <button name="action_cancel" type="object" string="Cancel" states="draft,in_progress"/>
+                    <button name="action_reset_to_draft" type="object" string="Reset to Draft" states="cancel,billed"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,done,billed"/>
                 </header>
-
                 <sheet>
+                    <div class="oe_title">
+                        <h1><field name="result_no" readonly="1"/></h1>
+                    </div>
+                    <!-- Make fields readonly based on state to prevent editing after confirmation -->
                     <group>
                         <group>
-                            <field name="result_no"/>
-                            <field name="result_date"/>
-                            <field name="patient_name"/>
-                            <field name="age"/>
-                            <field name="gender"/>
+                            <field name="patient_name" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="age" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="gender" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <!-- Use a better widget for selecting tests -->
+                            <field name="test_ids" widget="many2many_tags" options="{'no_create_edit': True}" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                         </group>
                         <group>
-                            <field name="phone"/>
-                            <field name="email"/>
-                            <field name="state" readonly="True"/>
+                            <field name="phone" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="email" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="result_date" readonly="1"/>
                         </group>
                     </group>
-
-                    <!-- Test Lines like Sale Order Lines -->
-                    <group string="Test Lines">
-                        <field name="test_ids">
-                            <tree editable="bottom">
-                                <field name="test_type_name" invisible="1"/>
-                            </tree>
-                        </field>
-                    </group>
-
-                    <!-- Result Lines like Order Line Details -->
-                    <group string="Result Lines">
-                        <field name="result_line_ids">
-                            <tree editable="bottom">
-                                <field name="parameter_id" readonly="1"/>
-                                <field name="result_value"/>
-                                <field name="test_unit" readonly="1"/>
-                                <field name="reference_range" readonly="1"/>
-                            </tree>
-                        </field>
-                    </group>
+                    <notebook>
+                        <page string="Result Lines" name="result_lines">
+                            <!-- The onchange method will populate this automatically -->
+                            <field name="result_line_ids" attrs="{'readonly': [('state', 'in', ['done', 'billed', 'cancel'])]}">
+                                <tree editable="bottom">
+                                    <field name="parameter_id" readonly="1"/>
+                                    <field name="result_value"/>
+                                    <field name="normal_range" readonly="1"/>
+                                    <field name="uom_id" readonly="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
-
                 <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="message_ids"/>
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
                 </div>
             </form>
         </field>
     </record>
 
+    <!-- Window Action for test.result -->
     <record id="action_test_result" model="ir.actions.act_window">
-        <field name="name">Lab Results</field>
+        <field name="name">Test Results</field>
         <field name="res_model">test.result</field>
         <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Create a new Lab Test Result
+          </p><p>
+            This is where you register new patients, select the tests they need, and enter the results.
+          </p>
+        </field>
     </record>
 </odoo>

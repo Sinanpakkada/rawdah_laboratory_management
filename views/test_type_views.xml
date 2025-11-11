@@ -1,49 +1,70 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!--test type tree-->
+    <!-- Tree View for test.type -->
     <record id="test_type_view_tree" model="ir.ui.view">
         <field name="name">test.type.tree</field>
         <field name="model">test.type</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="test_type_name"/>
+                <!-- Use the new field name 'name' -->
+                <field name="name"/>
                 <field name="test_amount"/>
             </tree>
         </field>
     </record>
-    <!--Test Type Form-->
+
+    <!-- Form View for test.type -->
     <record id="test_type_view_form" model="ir.ui.view">
         <field name="name">test.type.form</field>
         <field name="model">test.type</field>
         <field name="arch" type="xml">
             <form string="Test Type">
                 <sheet>
+                    <!-- Use a label for better visual grouping -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="e.g. Complete Blood Count"/>
+                        </h1>
+                    </div>
                     <group>
-                        <field name="test_type_name"/>
-                        <field name="test_amount"/>
+                        <group>
+                            <field name="test_amount" widget="monetary"/>
+                        </group>
                     </group>
                     <notebook>
-                        <page string="Parameters">
+                        <page string="Parameters" name="parameters">
                             <field name="parameter_ids">
                                 <tree editable="bottom">
-                                    <field name="test_parameter_name"/>
-                                    <field name="reference_range"/>
-                                    <field name="test_unit"/>
+                                    <!-- Use the new, correct field names -->
+                                    <field name="name"/>
+                                    <field name="normal_range"/>
+                                    <field name="uom_id"/>
                                 </tree>
                             </field>
                         </page>
                     </notebook>
                 </sheet>
+                <!-- Updated chatter for Odoo 17 -->
                 <div class="oe_chatter">
-                    <field name="message_follower_ids" options="{'open_attachments': True}"/>
-                    <field name="message_ids"/>
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
                 </div>
             </form>
         </field>
     </record>
+
+    <!-- Window Action for test.type -->
     <record id="action_test_type" model="ir.actions.act_window">
         <field name="name">Test Types</field>
         <field name="res_model">test.type</field>
         <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Create a new Test Type
+          </p><p>
+            Define laboratory tests and their parameters here. For example, "Blood Sugar Test" with a parameter for "Glucose".
+          </p>
+        </field>
     </record>
 </odoo>

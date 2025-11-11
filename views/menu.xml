@@ -1,10 +1,33 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem id="menu_lab_root" name="Lab" sequence="1"/>
+    <!-- Main application menu -->
+    <menuitem
+        id="menu_lab_root"
+        name="Laboratory"
+        sequence="10"
+        />
 
-    <menuitem id="menu_lab_config" name="Configuration" sequence="10" parent="menu_lab_root"/>
-    <menuitem id="menu_lab_test_type" name="Test Types" parent="menu_lab_config" action="action_test_type"/>
+    <!-- Main menu for day-to-day operations -->
+    <menuitem
+        id="menu_lab_test_result"
+        name="Test Results"
+        parent="menu_lab_root"
+        action="action_test_result"
+        sequence="1"/>
 
-    <menuitem id="menu_lab_test_result_root" name="Test Result" sequence="1" parent="menu_lab_root"/>
-    <menuitem id="menu_lab_test_result" name="Test Results" parent="menu_lab_test_result_root" action="action_test_result"/>
+    <!-- Configuration menu, only visible to managers -->
+    <menuitem
+        id="menu_lab_config"
+        name="Configuration"
+        parent="menu_lab_root"
+        sequence="100"
+        groups="rawdah_laboratory_management.group_lab_manager"/>
+
+    <menuitem
+        id="menu_lab_test_type"
+        name="Test Types"
+        parent="menu_lab_config"
+        action="action_test_type"
+        sequence="1"/>
+
 </odoo>
