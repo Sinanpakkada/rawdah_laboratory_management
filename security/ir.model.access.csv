@@ -1,6 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_test_result_user,test.result.user,model_test_result,group_lab_user,1,1,1,1
-access_test_result_line_user,test.result.line.user,model_test_result_line,group_lab_user,1,1,1,1
+access_test_result_line_user,test.result.line.user,model_test_result_line,,1,1,1,1
 
 access_test_type_manager,test.type.manager,model_test_type,group_lab_manager,1,1,1,1
 access_test_parameter_manager,test.parameter.manager,model_test_parameter,group_lab_manager,1,1,1,1

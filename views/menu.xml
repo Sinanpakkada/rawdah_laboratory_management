@@ -5,7 +5,7 @@
         id="menu_lab_root"
         name="Laboratory"
         sequence="10"
-        web_icon="rawdah_laboratory_management,static/description/Rawdah.png"/>
+        web_icon="rawdah_laboratory_management,static/description/icon.png"/>
 
     <!-- Main menu for day-to-day operations -->
     <menuitem

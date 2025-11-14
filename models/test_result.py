@@ -30,6 +30,10 @@ class TestResult(models.Model):
         tracking=True,
         domain=[('is_patient', '=', True)]  # Optional: you can add a filter if you distinguish patients
     )
+    age = fields.Integer(related='patient_id.age', string="Age", store=True, readonly=True)
+    gender = fields.Selection(related='patient_id.gender', string="Gender", store=True, readonly=True)
+    phone = fields.Char(related='patient_id.phone', string="Phone", store=True, readonly=True)
+    email = fields.Char(related='patient_id.email', string="Email", store=True, readonly=True)
 
     # phone = fields.Char(
     #     string="Mobile",
@@ -84,19 +88,19 @@ class TestResult(models.Model):
         self.write({'state': 'done'})
         # email,whatsapp,result printing
 
-    # def action_cancel_test(self):
-    #     """Cancel the test"""
-    #     for rec in self:
-    #         if rec.state == 'done':
-    #             raise UserError(_("Cannot cancel a test which is already done."))
-    #     self.write({'state': 'cancel'})
-    #
-    # def action_reset_to_draft(self):
-    #     """Reset test to draft state"""
-    #     for rec in self:
-    #         if rec.state == 'done':
-    #             raise UserError(_("Cannot reset a done test to draft."))
-    #     self.write({'state': 'draft'})
+    def action_cancel_test(self):
+        """Cancel the test"""
+        for rec in self:
+            if rec.state == 'done':
+                raise UserError(_("Cannot cancel a test which is already done."))
+        self.write({'state': 'cancel'})
+
+    def action_reset_to_draft(self):
+        """Reset test to draft state"""
+        for rec in self:
+            if rec.state == 'done':
+                raise UserError(_("Cannot reset a done test to draft."))
+        self.write({'state': 'draft'})
 
     # --- Onchange method to populate result lines ---
 
