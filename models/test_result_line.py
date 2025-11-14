@@ -7,10 +7,10 @@ class TestResultLine(models.Model):
     _description = 'Test Result Line'
 
     result_id = fields.Many2one(
-        'test.result', string="Result ID", ondelete='cascade', required=True
+        'test.result', string="Result ID", ondelete='cascade'
     )
     parameter_id = fields.Many2one(
-        'test.parameter', string='Parameter', required=True
+        'test.parameter', string='Parameter',
     )
     result_value = fields.Char(string="Result")
 
