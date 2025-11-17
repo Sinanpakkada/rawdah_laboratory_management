@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <report
+        id="action_report_test_bill"
+        model="test.result"
+        string="Lab Bill"
+        report_type="qweb-pdf"
+        name="rawdah.report_test_bill"
+        file="rawdah.report_test_bill"
+        print_report_name="'Bill - %s'%(object.result_no)"
+    />
+
+    <report
+        id="action_report_test_result"
+        model="test.result"
+        string="Lab Test Result"
+        report_type="qweb-pdf"
+        name="rawdah.report_test_result"
+        file="rawdah.report_test_result"
+        print_report_name="'Result - %s'%(object.reesult_no)"
+    />
+
+</odoo>

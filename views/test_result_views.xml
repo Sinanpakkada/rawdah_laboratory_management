@@ -52,8 +52,8 @@
                     </group>
                     <notebook>
                         <page string="Result Lines" name="result_lines">
-                            <field name="result_line_ids" readonly="state != 'draft'">
-                                <tree editable="bottom">
+                            <field name="result_line_ids" options="{'no_create': True, 'no_create_edit': True}" readonly="state not in ('draft', 'billed')">
+                                <tree create="false" delete="false" editable="bottom">
                                     <field name="parameter_id" readonly="1"/>
                                     <field name="result_value"/>
                                     <field name="normal_range" readonly="1"/>

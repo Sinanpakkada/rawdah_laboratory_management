@@ -78,6 +78,7 @@ class TestResult(models.Model):
             if not rec.test_ids:
                 raise UserError(_("Please select at least one test before billing."))
         self.write({'state': 'billed'})
+        return self.env.ref('rawdah_laboratory_management.action_test_result_report_bill').report_action(self)
         #email,whatsapp,bill printing
 
     def action_print_result(self):
@@ -86,6 +87,7 @@ class TestResult(models.Model):
             if not rec.result_line_ids:
                 raise UserError(_("Please enter result lines before printing result."))
         self.write({'state': 'done'})
+        return self.env.ref('rawdah_laboratory_management.action_test_result_report_result').report_action(self)
         # email,whatsapp,result printing
 
     def action_cancel_test(self):
@@ -113,6 +115,8 @@ class TestResult(models.Model):
 
         # Get all parameters from selected tests
         all_parameters = self.test_ids.mapped('parameter_ids')
+        # Remove duplicates explicitly
+        all_parameters = self.env['test.parameter'].browse(list(set(all_parameters.ids)))
 
         # Get existing parameter IDs to avoid duplicates
         existing_param_ids = self.result_line_ids.mapped('parameter_id').ids
@@ -129,14 +133,29 @@ class TestResult(models.Model):
         lines_to_remove = []
         for line in self.result_line_ids:
             if line.parameter_id not in all_parameters:
-                if line.id:  # If it's a saved record
-                    lines_to_remove.append((2, line.id, 0))  # Delete it
-                else:  # If it's a new record in the form
-                    lines_to_remove.append((3, line.id, 0))  # Remove from list
+                if line.id:
+                    # Delete from database
+                    lines_to_remove.append((2, line.id))
+                else:
+                    # Remove unsaved record from UI
+                    lines_to_remove.append((3, 0))
 
         # Apply changes
         if lines_to_remove or new_lines:
             self.result_line_ids = lines_to_remove + new_lines
+
+    def _generate_result_lines(self):
+        for rec in self:
+            all_params = rec.test_ids.mapped('parameter_ids')
+
+            # Clear existing
+            rec.result_line_ids = [(5, 0, 0)]
+
+            # Add lines
+            for param in all_params:
+                rec.result_line_ids = [(0, 0, {
+                    'parameter_id': param.id,
+                })]
 
     # --- CRUD Methods ---
 
@@ -147,22 +166,15 @@ class TestResult(models.Model):
             if not vals.get('result_no') or vals.get('result_no') == _('New'):
                 vals['result_no'] = self.env['ir.sequence'].next_by_code('test.result') or _('New')
         records = super().create(vals_list)
+        # populate result lines for newly created records
+        records._generate_result_lines()
         return records
 
-    # --- Helper Methods ---
+    def write(self, vals):
+        res = super().write(vals)
 
-    # def name_get(self):
-    #     """Custom display name for the model"""
-    #     result = []
-    #     for rec in self:
-    #         name = f"{rec.result_no} - {rec.patient_name}"
-    #         result.append((rec.id, name))
-    #     return result
-    #
-    # @api.model
-    # def _name_search(self, name='', args=None, operator='ilike', limit=100, order=None):
-    #     """Custom search by result_no or patient_name"""
-    #     args = args or []
-    #     if name:
-    #         args = ['|', ('result_no', operator, name), ('patient_name', operator, name)] + args
-    #     return self._search(args, limit=limit, order=order)
+        # Regenerate result lines if the tests changed
+        if 'test_ids' in vals:
+            self._generate_result_lines()
+
+        return res

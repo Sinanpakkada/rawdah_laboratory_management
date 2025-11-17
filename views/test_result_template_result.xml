@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="test_result_template_result">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <!--Header-->
+                <h2 class="text-center">TEST REPORT</h2>
+                <hr/>
+
+                <!--Patient Details-->
+                <table style="width=100%; border:none; font-size:14px">
+                    <tr>
+                        <!--Left Side-->
+                        <td style="width:50%; vertical-align:top;">
+                            <table style="width:100%; border:none;">
+                                <tr>
+                                    <td style="width=30%;"><strong>Lab. No</strong></td>
+                                    <td style="width:5%;">:</td>
+                                    <td><span t-esc="doc.result_no"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="width=30%;"><strong>Name</strong></td>
+                                    <td style="width:5%;">:</td>
+                                    <td><span t-esc="doc.patient_id.name"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="width=30%;"><strong>Age/Gender</strong></td>
+                                    <td style="width:5%;">:</td>
+                                    <td>
+                                        <span t-esc="doc.age"/> / <span t-esc="doc.gender"/>
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </td>
+                        <!--Right Side-->
+                        <td style="width:50%; vertical-align:top;">
+                            <table style="width:100%; border:none;">
+                                <tr>
+                                    <td style="width:30%;"><strong>Date</strong></td>
+                                    <td style="width:5%;">:</td>
+                                    <td><span t-esc="doc.result_date"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:50%;"><strong>Ref. By</strong></td>
+                                    <td style="width:5%;">:</td>
+                                </tr>
+                                <tr>
+                                    <td style="width:50%;"><strong>Ref. No</strong></td>
+                                    <td style="width:5%;">:</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+        </t>
+    </template>
+</odoo>
