@@ -6,3 +6,5 @@ class ResPartner(models.Model):
     is_patient = fields.Boolean(string="Is a Patient")
     age = fields.Integer(string="Age")
     gender = fields.Selection([('male','Male'),('female','Female'),],string="Gender")
+    house = fields.Char(string="House")
+    place = fields.Char(string="Place")

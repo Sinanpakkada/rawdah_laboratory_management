@@ -4,10 +4,23 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='category_id']" position="after">
-                <field name="is_patient"/>
-                <field name="age"/>
-                <field name="gender"/>
+            <!--add address option below email-->
+            <xpath expr="//field[@name='email']" position="after">
+                <group>
+                    <group>
+                        <field name="age"/>
+                        <field name="gender"/>
+                        <field name="email" widget="email" placeholder="Email"/>
+                        <field name="phone" widget="phone" placeholder="Phone"/>
+                        <field name="is_patient"/>
+                    </group>
+                    <group>
+                        <field name="house" placeholder="House Name..."/>
+                        <field name="place" placeholder="Place..."/>
+                        <field name="city" placeholder="City.."/>
+                        <field name="zip" placeholder="Pin Code.."/>
+                    </group>
+                </group>
             </xpath>
         </field>
     </record>
