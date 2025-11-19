@@ -8,6 +8,7 @@
                 <field name="result_no"/>
                 <field name="patient_id"/> <!-- Changed from patient_name -->
                 <field name="result_date"/>
+                <field name="total_amount" readonly="1"/>
                 <field name="state" widget="badge"
                        decoration-success="state in ('done','billed')"
                        decoration-warning="state == 'in_progress'"/>
@@ -29,7 +30,7 @@
                             invisible="state not in ('draft', 'billed', 'in_progress')"/>
                     <button name="action_reset_to_draft" type="object" string="Reset to Draft"
                             invisible="state != 'cancel'"/>
-                    <button name="action_edit_result" type="object" string="Reset to Draft"
+                    <button name="action_edit_result" type="object" string="Edit Result"
                             invisible="state != 'done'"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,billed,done"/>
                 </header>
@@ -43,13 +44,13 @@
                             <!-- Optionally show related fields -->
                             <field name="age" readonly="1" />
                             <field name="gender" readonly="1"/>
-                            <field name="phone" readonly="1"/>
-                            <field name="email" readonly="1"/>
                             <field name="test_ids" widget="many2many_tags" options="{'no_create_edit': True}" readonly="state != 'draft'"/>
                         </group>
                         <group>
                             <!-- Remove phone/email if stored on partner, or use related -->
                             <field name="result_date" readonly="1"/>
+                            <field name="phone" readonly="1"/>
+                            <field name="email" readonly="1"/>
                         </group>
                     </group>
                     <notebook>
@@ -60,6 +61,18 @@
                                     <field name="result_value"/>
                                     <field name="normal_range" readonly="1"/>
                                     <field name="uom_id" readonly="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Billing" name="billing">
+                            <group>
+                                <field name="total_amount" readonly="1"/>
+                            </group>
+
+                            <field name="bill_line_ids">
+                                <tree editable="bottom" create="false" delete="false">
+                                    <field name="test_id" readonly="1"/>
+                                    <field name="amount" readonly="1"/>
                                 </tree>
                             </field>
                         </page>

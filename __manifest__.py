@@ -36,7 +36,6 @@ Key Features:
         'views/menu.xml',
         'reports/test_result_template_bill.xml',
         'reports/test_result_template_result.xml',
-        # 'reports/test_result_report.xml',
     ],
     'installable': True,
     'application': True,

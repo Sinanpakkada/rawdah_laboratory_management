@@ -67,6 +67,25 @@ class TestResult(models.Model):
         string="Result Lines"
     )
 
+    bill_line_ids = fields.One2many(
+        'test.result.bill.line',
+        'result_id',
+        string="Bill Lines",
+        copy=True
+    )
+
+    total_amount = fields.Float(
+        string="Total Amount",
+        compute='_compute_total_amount',
+        store=True
+    )
+
+    # --- Compute Methods ---
+    @api.depends('bill_line_ids.amount')
+    def _compute_total_amount(self):
+        for rec in self:
+            rec.total_amount = sum(rec.bill_line_ids.mapped('amount')) if rec.bill_line_ids else 0.0
+
     # --- Constraints ---
 
     @api.constrains('age')
@@ -74,6 +93,71 @@ class TestResult(models.Model):
         for rec in self:
             if rec.age and (rec.age < 0 or rec.age > 150):
                 raise UserError(_("Please enter a valid age between 0 and 150."))
+
+    # --- Onchange Methods (UI Preview Only) ---
+
+    @api.onchange('test_ids')
+    def _onchange_test_ids(self):
+        """
+        UI Preview: Show result lines and bill lines when selecting tests.
+        This only affects the form view before saving.
+        Actual persistence is handled by create() and write() methods.
+        """
+        if not self.test_ids:
+            self.result_line_ids = [(5, 0, 0)]
+            self.bill_line_ids = [(5, 0, 0)]
+            return
+
+        # ==================== RESULT LINES (KEEP AS IS - WORKING PERFECTLY) ====================
+        all_parameters = self.test_ids.mapped('parameter_ids')
+        all_param_ids = set(all_parameters.ids)
+
+        existing_lines = {line.parameter_id.id: line for line in self.result_line_ids}
+        existing_param_ids = set(existing_lines.keys())
+
+        result_commands = []
+
+        # Remove lines for deselected parameters
+        for param_id, line in existing_lines.items():
+            if param_id not in all_param_ids:
+                if line.id:
+                    result_commands.append((2, line.id, 0))
+                else:
+                    result_commands.append((3, line.id, 0))
+
+        # Add new parameter lines
+        for param_id in all_param_ids:
+            if param_id not in existing_param_ids:
+                result_commands.append((0, 0, {'parameter_id': param_id}))
+
+        if result_commands:
+            self.result_line_ids = result_commands
+
+        # ==================== BILL LINES (FIXED - Only for existing records) ====================
+        # Skip bill line preview for new unsaved records to avoid mandatory field error
+        if not self.id:
+            return
+
+        selected_test_ids = set(self.test_ids.ids)
+        existing_bill_lines = {line.test_id.id: line for line in self.bill_line_ids if line.test_id}
+        existing_test_ids = set(existing_bill_lines.keys())
+
+        bill_commands = []
+
+        # Remove bill lines for deselected tests
+        for test_id, line in existing_bill_lines.items():
+            if test_id not in selected_test_ids:
+                bill_commands.append((2, line.id, 0))
+
+        # Add bill lines for new tests
+        for test in self.test_ids:
+            if test.id not in existing_test_ids:
+                bill_commands.append((0, 0, {
+                    'test_id': test.id,
+                }))
+
+        if bill_commands:
+            self.bill_line_ids = bill_commands
 
     # --- Business Logic Methods (Actions) ---
     def action_save_and_bill(self):
@@ -102,87 +186,92 @@ class TestResult(models.Model):
     def action_reset_to_draft(self):
         """Reset test to draft state"""
         for rec in self:
-            if rec.state == 'done':
-                raise UserError(_("Cannot reset a done test to draft."))
+            if rec.state in ('done', 'cancel'):
+                raise UserError(_("Cannot reset a done or cancelled test to draft."))
         self.write({'state': 'draft'})
 
     def action_edit_result(self):
+        """Allow editing of result by resetting to draft"""
         self.write({'state':'draft'})
 
-    # --- Onchange method to populate result lines ---
-
-    @api.onchange('test_ids')
-    def _onchange_test_ids(self):
-        """Automatically populate result lines based on selected tests"""
-        if not self.test_ids:
-            self.result_line_ids = [(5, 0, 0)]
-            return
-
-        # Get all parameters from selected tests
-        all_parameters = self.test_ids.mapped('parameter_ids')
-        # Remove duplicates explicitly
-        all_parameters = self.env['test.parameter'].browse(list(set(all_parameters.ids)))
-
-        # Get existing parameter IDs to avoid duplicates
-        existing_param_ids = self.result_line_ids.mapped('parameter_id').ids
-
-        # Create lines only for new parameters
-        new_lines = []
-        for param in all_parameters:
-            if param.id not in existing_param_ids:
-                new_lines.append((0, 0, {
-                    'parameter_id': param.id,
-                }))
-
-        # Remove lines for parameters not in selected tests
-        lines_to_remove = []
-        for line in self.result_line_ids:
-            if line.parameter_id not in all_parameters:
-                if line.id:
-                    # Delete from database
-                    lines_to_remove.append((2, line.id))
-                else:
-                    # Remove unsaved record from UI
-                    lines_to_remove.append((3, 0))
-
-        # Apply changes
-        if lines_to_remove or new_lines:
-            self.result_line_ids = lines_to_remove + new_lines
+    # --- Internal Methods ---
 
     def _populate_result_lines(self):
         """
         Populate result lines based on selected tests.
         Preserves existing result values and only updates parameters.
+        Uses batched One2many commands for optimal performance.
         """
         for rec in self:
             if not rec.test_ids:
                 rec.result_line_ids = [(5, 0, 0)]
                 continue
 
+            # Get all unique parameters from selected tests
             all_parameters = rec.test_ids.mapped('parameter_ids')
-            all_parameters = self.env['test.parameter'].browse(list(set(all_parameters.ids)))
+            all_param_ids = set(all_parameters.ids)
 
-            existing_param_ids = rec.result_line_ids.mapped('parameter_id').ids
+            # Get existing parameter IDs
+            existing_lines = {line.parameter_id.id: line for line in rec.result_line_ids}
+            existing_param_ids = set(existing_lines.keys())
 
-            # Add new parameters without affecting existing result values
-            for param in all_parameters:
-                if param.id not in existing_param_ids:
-                    rec.result_line_ids = [(0, 0, {'parameter_id': param.id})]
+            # Build batched commands
+            commands = []
 
             # Remove lines for parameters not in selected tests
-            lines_to_remove = []
-            for line in rec.result_line_ids:
-                if line.parameter_id not in all_parameters:
-                    lines_to_remove.append((2, line.id))
+            for param_id, line in existing_lines.items():
+                if param_id not in all_param_ids:
+                    commands.append((2, line.id, 0))
 
-            if lines_to_remove:
-                rec.result_line_ids = lines_to_remove
+            # Add new parameters (preserves existing result values)
+            for param_id in all_param_ids:
+                if param_id not in existing_param_ids:
+                    commands.append((0, 0, {'parameter_id': param_id}))
+
+            # Apply all changes in a single write operation
+            if commands:
+                rec.result_line_ids = commands
+
+    def _update_bill_lines(self):
+        """
+        Update bill lines based on selected tests.
+        Preserves user-modified amounts by only adding/removing lines.
+        Uses batched One2many commands for optimal performance.
+        """
+        for rec in self:
+            if not rec.test_ids:
+                rec.bill_line_ids = [(5, 0, 0)]
+                continue
+
+            # Get selected test IDs
+            selected_test_ids = set(rec.test_ids.ids)
+
+            # Get existing bill lines mapped by test_id
+            existing_lines = {line.test_id.id: line for line in rec.bill_line_ids}
+            existing_test_ids = set(existing_lines.keys())
+
+            # Build batched commands
+            commands = []
+
+            # Remove bill lines for deselected tests
+            for test_id, line in existing_lines.items():
+                if test_id not in selected_test_ids:
+                    commands.append((2, line.id, 0))
+
+            # Add bill lines for newly selected tests only
+            for test_id in selected_test_ids:
+                if test_id not in existing_test_ids:
+                    commands.append((0, 0, {'test_id': test_id}))
+
+            # Apply all changes in a single write operation
+            if commands:
+                rec.bill_line_ids = commands
 
     # --- CRUD Methods ---
 
     @api.model_create_multi
     def create(self, vals_list):
-        """Override create to generate sequence number"""
+        """Override create to generate sequence number and populate lines"""
         for vals in vals_list:
             if not vals.get('result_no'):
                 sequence = self.env['ir.sequence'].next_by_code('test.result')
@@ -195,15 +284,20 @@ class TestResult(models.Model):
                 _logger.info(f"Generated result_no: {sequence}")
 
         records = super().create(vals_list)
+
+        # Populate result lines and bill lines based on selected tests
         records._populate_result_lines()
+        records._update_bill_lines()
+
         return records
 
     def write(self, vals):
-        """Override write to handle updates"""
+        """Override write to handle test changes"""
         res = super().write(vals)
 
-        # Regenerate result lines only if test_ids changed
+        # Update lines only if test_ids changed
         if 'test_ids' in vals:
             self._populate_result_lines()
+            self._update_bill_lines()
 
         return res
