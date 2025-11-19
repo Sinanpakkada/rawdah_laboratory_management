@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- REPORT ACTION FOR TEST RESULT -->
+        <record id="action_test_result_report_result" model="ir.actions.report">
+            <field name="name">Test Result</field>
+            <field name="model">test.result</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">rawdah_laboratory_management.test_result_template_result</field>
+            <field name="report_file">rawdah_laboratory_management.test_result_template_result</field>
+            <field name="print_report_name">'TEST RESULT - %s' % (object.result_no)</field>
+        </record>
+
+        <!-- QWEB TEMPLATE FOR TEST RESULT -->
+        <template id="test_result_template_result">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <style>
+                                .report-header { font-size: 14px; }
+                                .report-table-sm { font-size: 13px; }
+                                .report-footer { font-size: 12px; }
+                            </style>
+
+                            <!-- Header -->
+                            <h2 class="text-center">TEST RESULT REPORT</h2>
+                            <hr/>
+
+                            <!-- Patient Details -->
+                            <table class="table table-sm report-header" style="width:100%; border:none; margin-bottom:10px;">
+                                <tbody>
+                                    <tr>
+                                        <!-- Left Side -->
+                                        <td style="width:50%; vertical-align:top;">
+                                            <table style="width:100%; border:none;">
+                                                <tr>
+                                                    <td style="width:30%;"><strong>Lab. No</strong></td>
+                                                    <td style="width:5%;">:</td>
+                                                    <td><span t-esc="o.result_no"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:30%;"><strong>Name</strong></td>
+                                                    <td style="width:5%;">:</td>
+                                                    <td>
+                                                        <span t-esc="o.patient_id.name" t-if="o.patient_id"/>
+                                                        <span t-if="not o.patient_id">N/A</span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:30%;"><strong>Age/Gender</strong></td>
+                                                    <td style="width:5%;">:</td>
+                                                    <td>
+                                                        <span t-esc="o.age" t-if="o.age"/>
+                                                        <span t-if="not o.age">--</span>
+                                                        /
+                                                        <span t-esc="o.gender" t-if="o.gender"/>
+                                                        <span t-if="not o.gender">--</span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <!-- Right Side -->
+                                        <td style="width:50%; vertical-align:top;">
+                                            <table style="width:100%; border:none;">
+                                                <tr>
+                                                    <td style="width:30%;"><strong>Date</strong></td>
+                                                    <td style="width:5%;">:</td>
+                                                    <td>
+                                                        <span t-esc="o.result_date" t-if="o.result_date"/>
+                                                        <span t-if="not o.result_date">N/A</span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:50%;"><strong>Ref. By</strong></td>
+                                                    <td style="width:5%;">:</td>
+                                                    <td>
+                                                        <span t-esc="o.referred_by" t-if="o.referred_by"/>
+                                                        <span t-if="not o.referred_by">-</span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="width:50%;"><strong>Ref. No</strong></td>
+                                                    <td style="width:5%;">:</td>
+                                                    <td>
+                                                        <span t-esc="o.reference_no" t-if="o.reference_no"/>
+                                                        <span t-if="not o.reference_no">-</span>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <br/>
+
+                            <!-- Test Results Table -->
+                            <table class="table table-bordered table-sm report-table-sm" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th style="width:40%;">Investigation</th>
+                                        <th style="width:20%;">Result</th>
+                                        <th style="width:20%;">Unit</th>
+                                        <th style="width:20%;">Reference Range</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="o.result_line_ids" t-as="line">
+                                        <td>
+                                            <t t-esc="line.parameter_id.name" t-if="line.parameter_id"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="line.result_value" t-if="line.result_value"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="line.uom_id.name" t-if="line.uom_id"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="line.normal_range" t-if="line.normal_range"/>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="not o.result_line_ids">
+                                        <td colspan="4" class="text-center" style="padding:20px;">
+                                            <strong>No test results available</strong>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <br/>
+                            <br/>
+
+                            <!-- Signature Section -->
+                            <table style="width:100%; border:none; margin-top:40px;">
+                                <tr>
+                                    <td style="width:50%; text-align:center; vertical-align:top;">
+                                        <p style="margin-bottom:50px;"><strong>Technician Signature</strong></p>
+                                        <p style="border-top:1px solid black; padding-top:5px;">_____________________</p>
+                                        <p style="font-size:11px;">Name &amp; Date</p>
+                                    </td>
+                                    <td style="width:50%; text-align:center; vertical-align:top;">
+                                        <p style="margin-bottom:50px;"><strong>Authorized By</strong></p>
+                                        <p style="border-top:1px solid black; padding-top:5px;">_____________________</p>
+                                        <p style="font-size:11px;">Name &amp; Date</p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <br/>
+                            <p class="report-footer" style="text-align:center; margin-top:30px;">
+                                <i>This is a system generated report.</i>
+                            </p>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

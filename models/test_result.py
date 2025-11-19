@@ -26,7 +26,6 @@ class TestResult(models.Model):
     patient_id = fields.Many2one(
         'res.partner',
         string='Patient',
-        required=True,
         tracking=True,
         domain=[('is_patient', '=', True)]  # Optional: you can add a filter if you distinguish patients
     )
@@ -34,6 +33,14 @@ class TestResult(models.Model):
     gender = fields.Selection(related='patient_id.gender', string="Gender", store=True, readonly=True)
     phone = fields.Char(related='patient_id.phone', string="Phone", store=True, readonly=True)
     email = fields.Char(related='patient_id.email', string="Email", store=True, readonly=True)
+    referred_by = fields.Char(
+        string="Referred By",
+        help="Name of the referring doctor/facility"
+    )
+    reference_no = fields.Char(
+        string="Reference No.",
+        help="Reference number from referring doctor"
+    )
 
     # phone = fields.Char(
     #     string="Mobile",
