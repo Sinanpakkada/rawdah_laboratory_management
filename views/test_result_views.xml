@@ -22,13 +22,15 @@
             <form string="Lab Test Result">
                 <header>
                     <button name="action_save_and_bill" type="object" string="Print Bill"
-                            class="btn-success" invisible="state != 'draft'"/>
+                            class="btn-success" invisible="state not in ('draft', 'billed', 'done')"/>
                     <button name="action_print_result" type="object" string="Print Result"
-                            class="btn-primary" invisible="state != 'billed'"/>
+                            class="btn-primary" invisible="state not in ('billed', 'done')"/>
                     <button name="action_cancel_test" type="object" string="Cancel"
                             invisible="state not in ('draft', 'billed', 'in_progress')"/>
                     <button name="action_reset_to_draft" type="object" string="Reset to Draft"
                             invisible="state != 'cancel'"/>
+                    <button name="action_edit_result" type="object" string="Reset to Draft"
+                            invisible="state != 'done'"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,billed,done"/>
                 </header>
                 <sheet>

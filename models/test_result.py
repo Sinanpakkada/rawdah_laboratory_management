@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class TestResult(models.Model):
@@ -13,43 +16,37 @@ class TestResult(models.Model):
     result_no = fields.Char(
         string="Lab. No.",
         readonly=True,
-        default=lambda self: _("New"),
-        index=True  # Added for better search performance
+        index=True,
+        copy=False
     )
     result_date = fields.Datetime(
         string="Test Date",
         default=fields.Datetime.now,
         readonly=True,
-        tracking=True  # Added tracking for audit trail
+        tracking=True
     )
 
     patient_id = fields.Many2one(
         'res.partner',
         string='Patient',
         tracking=True,
-        domain=[('is_patient', '=', True)]  # Optional: you can add a filter if you distinguish patients
+        domain=[('is_patient', '=', True)]
     )
     age = fields.Integer(related='patient_id.age', string="Age", store=True, readonly=True)
     gender = fields.Selection(related='patient_id.gender', string="Gender", store=True, readonly=True)
     phone = fields.Char(related='patient_id.phone', string="Phone", store=True, readonly=True)
     email = fields.Char(related='patient_id.email', string="Email", store=True, readonly=True)
+
     referred_by = fields.Char(
         string="Referred By",
-        help="Name of the referring doctor/facility"
+        help="Name of the referring doctor/facility",
+        tracking=True
     )
     reference_no = fields.Char(
         string="Reference No.",
-        help="Reference number from referring doctor"
+        help="Reference number from referring doctor",
+        tracking=True
     )
-
-    # phone = fields.Char(
-    #     string="Mobile",
-    #     help="Patient's contact mobile number."
-    # )
-    # email = fields.Char(
-    #     string="Email",
-    #     help="Patient's contact email address."
-    # )
 
     state = fields.Selection([
         ('draft', 'Draft'),
@@ -62,7 +59,7 @@ class TestResult(models.Model):
         'test.type',
         string="Tests",
         help="Select the tests requested for the patient.",
-        tracking=True  # Added tracking
+        tracking=True
     )
     result_line_ids = fields.One2many(
         'test.result.line',
@@ -75,7 +72,7 @@ class TestResult(models.Model):
     @api.constrains('age')
     def _check_age(self):
         for rec in self:
-            if rec.age < 0 or rec.age > 150:
+            if rec.age and (rec.age < 0 or rec.age > 150):
                 raise UserError(_("Please enter a valid age between 0 and 150."))
 
     # --- Business Logic Methods (Actions) ---
@@ -86,7 +83,6 @@ class TestResult(models.Model):
                 raise UserError(_("Please select at least one test before billing."))
         self.write({'state': 'billed'})
         return self.env.ref('rawdah_laboratory_management.action_test_result_report_bill').report_action(self)
-        #email,whatsapp,bill printing
 
     def action_print_result(self):
         """Enter result details, print result, and mark done"""
@@ -95,7 +91,6 @@ class TestResult(models.Model):
                 raise UserError(_("Please enter result lines before printing result."))
         self.write({'state': 'done'})
         return self.env.ref('rawdah_laboratory_management.action_test_result_report_result').report_action(self)
-        # email,whatsapp,result printing
 
     def action_cancel_test(self):
         """Cancel the test"""
@@ -111,13 +106,16 @@ class TestResult(models.Model):
                 raise UserError(_("Cannot reset a done test to draft."))
         self.write({'state': 'draft'})
 
+    def action_edit_result(self):
+        self.write({'state':'draft'})
+
     # --- Onchange method to populate result lines ---
 
     @api.onchange('test_ids')
     def _onchange_test_ids(self):
         """Automatically populate result lines based on selected tests"""
         if not self.test_ids:
-            self.result_line_ids = [(5, 0, 0)]  # Clear all lines
+            self.result_line_ids = [(5, 0, 0)]
             return
 
         # Get all parameters from selected tests
@@ -151,18 +149,34 @@ class TestResult(models.Model):
         if lines_to_remove or new_lines:
             self.result_line_ids = lines_to_remove + new_lines
 
-    def _generate_result_lines(self):
+    def _populate_result_lines(self):
+        """
+        Populate result lines based on selected tests.
+        Preserves existing result values and only updates parameters.
+        """
         for rec in self:
-            all_params = rec.test_ids.mapped('parameter_ids')
+            if not rec.test_ids:
+                rec.result_line_ids = [(5, 0, 0)]
+                continue
 
-            # Clear existing
-            rec.result_line_ids = [(5, 0, 0)]
+            all_parameters = rec.test_ids.mapped('parameter_ids')
+            all_parameters = self.env['test.parameter'].browse(list(set(all_parameters.ids)))
 
-            # Add lines
-            for param in all_params:
-                rec.result_line_ids = [(0, 0, {
-                    'parameter_id': param.id,
-                })]
+            existing_param_ids = rec.result_line_ids.mapped('parameter_id').ids
+
+            # Add new parameters without affecting existing result values
+            for param in all_parameters:
+                if param.id not in existing_param_ids:
+                    rec.result_line_ids = [(0, 0, {'parameter_id': param.id})]
+
+            # Remove lines for parameters not in selected tests
+            lines_to_remove = []
+            for line in rec.result_line_ids:
+                if line.parameter_id not in all_parameters:
+                    lines_to_remove.append((2, line.id))
+
+            if lines_to_remove:
+                rec.result_line_ids = lines_to_remove
 
     # --- CRUD Methods ---
 
@@ -170,18 +184,26 @@ class TestResult(models.Model):
     def create(self, vals_list):
         """Override create to generate sequence number"""
         for vals in vals_list:
-            if not vals.get('result_no') or vals.get('result_no') == _('New'):
-                vals['result_no'] = self.env['ir.sequence'].next_by_code('test.result') or _('New')
+            if not vals.get('result_no'):
+                sequence = self.env['ir.sequence'].next_by_code('test.result')
+                if not sequence:
+                    _logger.error("Sequence 'test.result' not found.")
+                    raise UserError(
+                        _("Lab sequence not configured. Please contact administrator.")
+                    )
+                vals['result_no'] = sequence
+                _logger.info(f"Generated result_no: {sequence}")
+
         records = super().create(vals_list)
-        # populate result lines for newly created records
-        records._generate_result_lines()
+        records._populate_result_lines()
         return records
 
     def write(self, vals):
+        """Override write to handle updates"""
         res = super().write(vals)
 
-        # Regenerate result lines if the tests changed
+        # Regenerate result lines only if test_ids changed
         if 'test_ids' in vals:
-            self._generate_result_lines()
+            self._populate_result_lines()
 
         return res
