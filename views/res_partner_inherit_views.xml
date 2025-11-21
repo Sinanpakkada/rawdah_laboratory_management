@@ -3,9 +3,7 @@
         <field name="name">res.partner.form.clean.patient</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
-
         <field name="arch" type="xml">
-
             <!-- Replace ENTIRE sheet -->
             <xpath expr="//sheet" position="replace">
                 <sheet>
@@ -14,15 +12,14 @@
                             <field name="name"/>
                             <field name="age"/>
                             <field name="gender"/>
-                            <field name="phone"/>
+                            <field name="mobile"/>
                             <field name="email"/>
-                            <field name="is_patient"/>
                         </group>
                         <group>
                             <field name="house"/>
                             <field name="place"/>
                             <field name="city"/>
-                            <field name="zip" string="PIN Code"/>
+                            <field name="zip"/>
                         </group>
                     </group>
                 </sheet>

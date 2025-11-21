@@ -18,7 +18,7 @@ Key Features:
 - Integrated billing and invoicing.
     """,
     'author': 'Rawdah, Sinanpakkada',
-    'website': 'https://github.com/Sinanpakkada/rawdah_laboratory_management', # Good to add your repo link
+    'website': 'https://github.com/Sinanpakkada/rawdah_laboratory_management',
     'category': 'Services/Industries',
     'sequence': 10,
     'depends': [
@@ -26,6 +26,8 @@ Key Features:
         'mail',
         'uom'
     ],
+
+    # XML files
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
@@ -37,6 +39,14 @@ Key Features:
         'reports/test_result_template_bill.xml',
         'reports/test_result_template_result.xml',
     ],
+    # Assets (Correct for Odoo 17)
+    'assets': {
+        'web.assets_backend': [
+            ('include', 'web._assets_helpers'),
+            ('include', 'web._assets_backend_helpers'),
+            'rawdah_laboratory_management/static/src/js/enter_navigation.js',
+        ],
+    },
     'installable': True,
     'application': True,
     'auto_install': False,
