@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <data>
+    <data noupdate="1">
         <record id="seq_test_result" model="ir.sequence">
             <field name="name">Test Result Sequence</field>
             <field name="code">test.result</field>

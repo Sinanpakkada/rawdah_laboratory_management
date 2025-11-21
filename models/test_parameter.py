@@ -16,7 +16,6 @@ class TestParameter(models.Model):
         'uom.uom', string="Unit of Measure",
         help="Select the unit of measure for this parameter (e.g., mg/dL, %)."
     )
-
     _sql_constraints = [
         ('name_test_type_uniq', 'unique(name, test_type_id)',
          'This parameter already exists for this test type!')
