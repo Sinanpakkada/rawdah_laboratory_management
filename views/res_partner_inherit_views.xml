@@ -1,26 +1,31 @@
 <odoo>
-    <record id="view_partner_form_inherit_patient" model="ir.ui.view">
-        <field name="name">res.partner.form.inherit.patient</field>
+    <record id="view_partner_form_clean_patient" model="ir.ui.view">
+        <field name="name">res.partner.form.clean.patient</field>
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
+
         <field name="arch" type="xml">
-            <!--add address option below email-->
-            <xpath expr="//field[@name='email']" position="after">
-                <group>
+
+            <!-- Replace ENTIRE sheet -->
+            <xpath expr="//sheet" position="replace">
+                <sheet>
                     <group>
-                        <field name="age"/>
-                        <field name="gender"/>
-                        <field name="email" widget="email" placeholder="Email"/>
-                        <field name="phone" widget="phone" placeholder="Phone"/>
-                        <field name="is_patient"/>
+                        <group>
+                            <field name="name"/>
+                            <field name="age"/>
+                            <field name="gender"/>
+                            <field name="phone"/>
+                            <field name="email"/>
+                            <field name="is_patient"/>
+                        </group>
+                        <group>
+                            <field name="house"/>
+                            <field name="place"/>
+                            <field name="city"/>
+                            <field name="zip" string="PIN Code"/>
+                        </group>
                     </group>
-                    <group>
-                        <field name="house" placeholder="House Name..."/>
-                        <field name="place" placeholder="Place..."/>
-                        <field name="city" placeholder="City.."/>
-                        <field name="zip" placeholder="Pin Code.."/>
-                    </group>
-                </group>
+                </sheet>
             </xpath>
         </field>
     </record>
