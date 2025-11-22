@@ -4,7 +4,7 @@
         <field name="name">test.result.tree</field>
         <field name="model">test.result</field>
         <field name="arch" type="xml">
-            <tree string="Test Results">
+            <tree string="Test Results" default_order="result_no desc">
                 <field name="result_no"/>
                 <field name="patient_id"/> <!-- Changed from patient_name -->
                 <field name="result_date"/>
