@@ -13,3 +13,6 @@ class TestType(models.Model):
     test_amount = fields.Float(
         string="Price", required=True, tracking=True, help="The price for this test."
     )
+    category_id = fields.Many2one(
+        'test.category',string="Category",required=True,help="select the category this test belongs to"
+    )

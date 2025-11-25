@@ -5,7 +5,6 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
-
 class TestResult(models.Model):
     _name = "test.result"
     _description = "Laboratory Test Result"
@@ -186,7 +185,7 @@ class TestResult(models.Model):
     def action_reset_to_draft(self):
         """Reset test to draft state"""
         for rec in self:
-            if rec.state in ('done', 'cancel'):
+            if rec.state == 'done':
                 raise UserError(_("Cannot reset a done or cancelled test to draft."))
         self.write({'state': 'draft'})
 

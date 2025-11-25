@@ -5,6 +5,7 @@ class TestParameter(models.Model):
     _name = "test.parameter"
     _description = "Laboratory Test Parameter"
 
+
     name = fields.Char(string="Parameter Name", required=True)
     test_type_id = fields.Many2one(
         'test.type', string="Test Type", ondelete='cascade', required=True

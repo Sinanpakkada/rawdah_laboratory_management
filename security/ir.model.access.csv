@@ -5,3 +5,4 @@ access_test_result_bill_line_user,test.result.bill.line.user,model_test_result_b
 access_test_result_bill_line_manager,test.result.bill.line.manager,model_test_result_bill_line,base.group_system,1,1,1,1
 access_test_type_manager,test.type.manager,model_test_type,rawdah_laboratory_management.group_lab_manager,1,1,1,1
 access_test_parameter_manager,test.parameter.manager,model_test_parameter,rawdah_laboratory_management.group_lab_manager,1,1,1,1
+access_test_category_manager,test.category.manager,model_test_category,rawdah_laboratory_management.group_lab_manager,1,1,1,1
