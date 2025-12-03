@@ -19,168 +19,189 @@
                     <t t-call="web.external_layout">
                         <div class="page">
                             <style>
-                                .bill-header { font-size: 16px; font-weight: bold; }
-                                .bill-table { font-size: 13px; }
-                                .bill-footer { font-size: 12px; }
+                                /* Global Professional Font settings */
+                                .page {
+                                    font-family: 'Georgia', 'Times New Roman', Times, serif;
+                                    font-size: 14px;
+                                    color: #000;
+                                }
+
+                                /* Header Styling */
+                                .bill-title {
+                                    font-size: 24px;
+                                    font-weight: bold;
+                                    text-transform: uppercase;
+                                    letter-spacing: 2px;
+                                    text-align: center;
+                                    margin-bottom: 5px;
+                                    color: #333;
+                                }
+                                .bill-subtitle {
+                                    text-align: center;
+                                    font-size: 12px;
+                                    margin-bottom: 20px;
+                                    color: #666;
+                                }
+
+                                /* Section Headers */
+                                .section-header {
+                                    color: #000;
+                                    font-weight: bold;
+                                    text-transform: uppercase;
+                                    padding: 5px 10px;
+                                    font-size: 12px;
+                                    border-bottom: 1px solid #ccc;
+                                    margin-bottom: 8px;
+                                }
+
+                                /* Info Tables */
+                                .info-table td { padding: 3px 0; }
+                                .label-col { font-weight: bold; color: #444; width: 35%; }
+                                .val-col { color: #000; }
+
+                                /* Itemized Bill Table */
+                                .bill-table thead th {
+                                    background-color: #333;
+                                    color: #fff;
+                                    text-transform: uppercase;
+                                    font-size: 12px;
+                                    padding: 8px;
+                                    border: none;
+                                }
+                                .bill-table tbody td {
+                                    padding: 8px;
+                                    border-bottom: 1px solid #eee;
+                                    vertical-align: middle;
+                                }
+                                .bill-table-total {
+                                    font-weight: bold;
+                                    background-color: #f9f9f9;
+                                }
+
+                                /* Totals Box */
+                                .totals-container {
+                                    margin-top: 20px;
+                                    page-break-inside: avoid;
+                                }
+                                .total-row td { padding: 5px 10px; }
+                                .grand-total {
+                                    font-size: 16px;
+                                    font-weight: bold;
+                                    border-top: 2px solid #000;
+                                    border-bottom: 2px solid #000;
+                                    background-color: #f0f0f0;
+                                }
                             </style>
 
-                            <!-- Header -->
-                            <h2 class="text-center bill-header">LABORATORY BILL</h2>
-                            <hr/>
+                            <!-- Main Title -->
+                            <div class="bill-title">Laboratory Invoice</div>
+                            <div class="bill-subtitle">Original Copy</div>
+                            <hr style="border-top: 2px solid #333; margin-bottom: 25px;"/>
 
-                            <!-- Patient Information -->
-                            <table class="table table-sm" style="width:100%; border:none; margin-bottom:15px; font-size:13px;">
-                                <tbody>
-                                    <tr>
-                                        <td style="width:50%; vertical-align:top;">
-                                            <table style="width:100%; border:none;">
-                                                <tr>
-                                                    <td style="width:30%;"><strong>Lab. No</strong></td>
-                                                    <td style="width:5%;">:</td>
-                                                    <td><span t-esc="o.result_no"/></td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="width:30%;"><strong>Patient Name</strong></td>
-                                                    <td style="width:5%;">:</td>
-                                                    <td>
-                                                        <span t-esc="o.patient_id.name" t-if="o.patient_id"/>
-                                                        <span t-if="not o.patient_id">N/A</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="width:30%;"><strong>Age/Gender</strong></td>
-                                                    <td style="width:5%;">:</td>
-                                                    <td>
-                                                        <span t-esc="o.age" t-if="o.age"/>
-                                                        <span t-if="not o.age">--</span>
-                                                        /
-                                                        <span t-esc="o.gender" t-if="o.gender"/>
-                                                        <span t-if="not o.gender">--</span>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                        <td style="width:50%; vertical-align:top;">
-                                            <table style="width:100%; border:none;">
-                                                <tr>
-                                                    <td style="width:30%;"><strong>Bill Date</strong></td>
-                                                    <td style="width:5%;">:</td>
-                                                    <td>
-                                                        <span t-esc="o.result_date" t-if="o.result_date"/>
-                                                        <span t-if="not o.result_date">N/A</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="width:30%;"><strong>Status</strong></td>
-                                                    <td style="width:5%;">:</td>
-                                                    <td><span t-esc="dict(o._fields['state'].selection).get(o.state)"/></td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="width:30%;"><strong>Phone</strong></td>
-                                                    <td style="width:5%;">:</td>
-                                                    <td>
-                                                        <span t-esc="o.phone" t-if="o.phone"/>
-                                                        <span t-if="not o.phone">-</span>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <!-- Two Column Info Section -->
+                            <div class="row" style="margin-bottom: 45px;">
+                                <!-- Patient Info -->
+                                <div class="col-6">
+                                    <table class="table-sm info-table" style="width:100%; border:none;">
+                                        <tr>
+                                            <td class="label-col">Lab No.</td>
+                                            <td class="val-col">: <span t-esc="o.result_no"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label-col">Patient Name</td>
+                                            <td class="val-col">:
+                                                <span t-esc="o.patient_id.name" t-if="o.patient_id"/>
+                                                <span t-if="not o.patient_id">N/A</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label-col">Age / Gender</td>
+                                            <td class="val-col">:
+                                                <span t-esc="o.age" t-if="o.age"/> /
+                                                <span t-esc="o.gender" t-if="o.gender"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
 
-                            <hr/>
+                                <!-- Invoice Info -->
+                                <div class="col-6">
+                                    <table class="table-sm info-table" style="width:100%; border:none;">
+                                        <tr>
+                                            <td class="label-col">Invoice Date</td>
+                                            <td class="val-col">:
+                                                <span t-esc="o.result_date" t-if="o.result_date" t-options='{"widget": "date"}'/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label-col">Ref. By</td>
+                                            <td class="val-col">: <span t-esc="o.referred_by or '-'"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="label-col">OP. Number</td>
+                                            <td class="val-col">: <span t-esc="o.reference_no or '-'"/></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
 
-                            <!-- Tests List with Prices -->
-                            <h4 style="margin-top:20px; margin-bottom:10px;">Tests Ordered:</h4>
-                            <table class="table table-bordered bill-table" style="width:100%;">
+                            <!-- Itemized Bill Table -->
+                            <table class="table bill-table" style="width:100%; margin-bottom: 0;">
                                 <thead>
-                                    <tr style="background-color:#f0f0f0;">
-                                        <th style="width:60%;">Test Name</th>
-                                        <th style="width:20%; text-align:right;">Price</th>
-                                        <th style="width:20%; text-align:right;">Amount</th>
+                                    <tr>
+                                        <th style="width:55%; text-align :left;">Test Name</th>
+                                        <th style="width:15%; text-align:left;">Price</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr t-foreach="o.test_ids" t-as="test">
                                         <td>
-                                            <span t-esc="test.name"/>
+                                            <span t-esc="test.name" style="font-weight:bold;"/>
                                         </td>
                                         <td class="text-right">
-                                            <span t-esc="'{:,.2f}'.format(test.test_amount)" t-if="test.test_amount"/>
-                                            <span t-if="not test.test_amount">0.00</span>
-                                        </td>
-                                        <td class="text-right">
-                                            <span t-esc="'{:,.2f}'.format(test.test_amount)" t-if="test.test_amount"/>
-                                            <span t-if="not test.test_amount">0.00</span>
+                                            <span t-esc="'{:,.2f}'.format(test.test_amount)"/>
                                         </td>
                                     </tr>
                                     <tr t-if="not o.test_ids">
-                                        <td colspan="3" class="text-center" style="padding:15px;">
-                                            <strong>No tests ordered</strong>
+                                        <td colspan="4" class="text-center" style="padding:20px; font-style:italic;">
+                                            No tests selected.
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
 
-                            <br/>
-
-                            <!-- Summary -->
-                            <table style="width:100%; border:none; margin-top:20px;">
-                                <tr>
-                                    <td style="width:60%;"></td>
-                                    <td style="width:40%;">
-                                        <table style="width:100%; border:1px solid #ddd;">
-                                            <tr>
-                                                <td style="width:60%; padding:8px;"><strong>Subtotal</strong></td>
-                                                <td style="width:40%; text-align:right; padding:8px;" t-esc="'{:,.2f}'.format(sum(o.test_ids.mapped('test_amount')))"/>
-                                            </tr>
-                                            <tr>
-                                                <td style="width:60%; padding:8px;"><strong>Tax (0%)</strong></td>
-                                                <td style="width:40%; text-align:right; padding:8px;">0.00</td>
-                                            </tr>
-                                            <tr style="background-color:#f0f0f0;">
-                                                <td style="width:60%; padding:8px;"><strong>Total Amount</strong></td>
-                                                <td style="width:40%; text-align:right; padding:8px;"><strong t-esc="'{:,.2f}'.format(sum(o.test_ids.mapped('test_amount')))"/></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <br/>
-                            <br/>
-
-                            <!-- Notes -->
-                            <div style="margin-top:30px; padding:10px; background-color:#f9f9f9; border:1px solid #ddd;">
-                                <p style="margin:0; font-size:11px;">
-                                    <strong>Notes:</strong> Payment should be made at the time of receiving the results.
-                                </p>
+                            <!-- Totals Section -->
+                            <div class="row totals-container">
+                                <div class="col-7">
+                                    <!-- Notes Box -->
+                                    <div style="border: 1px dashed #ccc; padding: 10px; background-color: #fdfdfd; font-size:12px;">
+                                        <strong>Terms &amp; Conditions:</strong>
+                                        <ul style="margin: 5px 0 0 15px; padding:0; color:#555;">
+                                            <li>Payment is due upon receipt.</li>
+                                            <li>Please keep this invoice for future reference.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-5">
+                                    <table style="width:100%; border-collapse: collapse;">
+                                        <tr class="total-row">
+                                            <td style="text-align:right;">Tax (0%):</td>
+                                            <td style="text-align:right;">0.00</td>
+                                        </tr>
+                                        <tr class="total-row grand-total">
+                                            <td style="text-align:right;">TOTAL AMOUNT:</td>
+                                            <td style="text-align:right;">
+                                                <span t-esc="'{:,.2f}'.format(sum(o.test_ids.mapped('test_amount')))"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
                             </div>
 
-                            <br/>
-                            <br/>
+                            <div style="text-align:center; margin-top:40px; font-size:11px; color:#888;">
+                                <i>Thank you for choosing our laboratory services.</i>
+                            </div>
 
-                            <!-- Signature Section -->
-                            <table style="width:100%; border:none; margin-top:40px;">
-                                <tr>
-                                    <td style="width:50%; text-align:center; vertical-align:top;">
-                                        <p style="margin-bottom:50px;"><strong>Prepared By</strong></p>
-                                        <p style="border-top:1px solid black; padding-top:5px;">_____________________</p>
-                                        <p style="font-size:11px;">Name &amp; Date</p>
-                                    </td>
-                                    <td style="width:50%; text-align:center; vertical-align:top;">
-                                        <p style="margin-bottom:50px;"><strong>Authorized By</strong></p>
-                                        <p style="border-top:1px solid black; padding-top:5px;">_____________________</p>
-                                        <p style="font-size:11px;">Name &amp; Date</p>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <br/>
-                            <p class="bill-footer" style="text-align:center; margin-top:30px;">
-                                <i>This is a system generated bill.</i>
-                            </p>
                         </div>
                     </t>
                 </t>
