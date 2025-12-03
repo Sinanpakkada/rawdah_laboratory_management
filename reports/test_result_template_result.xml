@@ -2,7 +2,6 @@
 <odoo>
     <data>
 
-        <!-- REPORT ACTION FOR TEST RESULT -->
         <record id="action_test_result_report_result" model="ir.actions.report">
             <field name="name">Test Result</field>
             <field name="model">test.result</field>
@@ -12,150 +11,247 @@
             <field name="print_report_name">'TEST RESULT - %s' % (object.result_no)</field>
         </record>
 
-        <!-- QWEB TEMPLATE FOR TEST RESULT -->
         <template id="test_result_template_result">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="o">
                     <t t-call="web.external_layout">
                         <div class="page">
                             <style>
-                                .report-header { font-size: 14px; }
-                                .report-table-sm { font-size: 13px; }
-                                .report-footer { font-size: 12px; }
+                                /* Global Professional Font settings */
+                                .page {
+                                    font-family: 'Georgia', 'Times New Roman', Times, serif;
+                                    font-size: 14px;
+                                    color: #000;
+                                }
+                                h2, h4, h5 {
+                                    font-family: 'Georgia', 'Times New Roman', Times, serif;
+                                    color: #000;
+                                }
+
+                                /* Table Styling */
+                                .report-header { font-size: 15px; }
+                                .report-table-sm { font-size: 14px; }
+                                .report-footer { font-size: 11px; color: #555; }
+
+                                /* Header Styling */
+                                .main-title {
+                                    font-weight: bold;
+                                    text-transform: uppercase;
+                                    letter-spacing: 1px;
+                                    margin-bottom: 5px;
+                                }
+
+                                /* Category and Test Headings */
+                                .category-header {
+                                    font-size: 20px;
+                                    font-weight: bold;
+                                    text-decoration: underline;
+                                    text-transform: uppercase;
+                                    text-align: center;
+                                    margin-bottom: 25px;
+                                    margin-top: 15px;
+                                    color: #333;
+                                }
+                                .test-heading {
+                                    background-color: #f8f9fa;
+                                    padding: 8px;
+                                    margin-top: 15px;
+                                    margin-bottom: 5px;
+                                    font-weight: bold;
+                                    font-size: 16px;
+                                    border-bottom: 2px solid #ddd;
+                                    text-transform: uppercase;
+                                }
+
+                                /* Signature Section Styling */
+                                .signature-block {
+                                    margin-top: 60px;
+                                    page-break-inside: avoid;
+                                }
+                                .signature-title {
+                                    font-weight: bold;
+                                    text-transform: uppercase;
+                                    font-size: 13px;
+                                    margin-bottom: 40px;
+                                }
+                                .signature-line {
+                                    border-top: 1px solid #000;
+                                    width: 80%;
+                                    margin: 0 auto;
+                                    padding-top: 5px;
+                                }
+                                .signature-sub {
+                                    font-size: 12px;
+                                    font-style: italic;
+                                }
                             </style>
 
-                            <!-- Header -->
-                            <h2 class="text-center">TEST RESULT REPORT</h2>
-                            <hr/>
+                            <!-- 1. IDENTIFY CATEGORIES PRESENT IN THIS RESULT -->
+                            <t t-set="present_categories" t-value="o.test_ids.mapped('category_id')"/>
 
-                            <!-- Patient Details -->
-                            <table class="table table-sm report-header" style="width:100%; border:none; margin-bottom:10px;">
-                                <tbody>
-                                    <tr>
-                                        <!-- Left Side -->
-                                        <td style="width:50%; vertical-align:top;">
-                                            <table style="width:100%; border:none;">
+                            <!-- 2. LOOP THROUGH EACH CATEGORY -->
+                            <t t-foreach="present_categories" t-as="category">
+
+                                <!-- HEADER: REPEATED FOR EACH CATEGORY/PAGE -->
+                                <h2 class="text-center main-title">TEST RESULT REPORT</h2>
+                                <hr style="border-top: 2px solid black;"/>
+
+                                <!-- Patient Details Table -->
+                                <table class="table table-sm report-header" style="width:100%; border:none; margin-bottom:20px;">
+                                    <tbody>
+                                        <tr>
+                                            <!-- Left Side -->
+                                            <td style="width:50%; vertical-align:top; padding-right:15px;">
+                                                <table style="width:100%; border:none;">
+                                                    <tr>
+                                                        <td style="width:35%;"><strong>Lab. No</strong></td>
+                                                        <td style="width:5%;">:</td>
+                                                        <td><span t-esc="o.result_no"/></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="width:35%;"><strong>Patient Name</strong></td>
+                                                        <td style="width:5%;">:</td>
+                                                        <td>
+                                                            <span t-esc="o.patient_id.name" t-if="o.patient_id"/>
+                                                            <span t-if="not o.patient_id">N/A</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="width:35%;"><strong>Age / Gender</strong></td>
+                                                        <td style="width:5%;">:</td>
+                                                        <td>
+                                                            <span t-esc="o.age" t-if="o.age"/>
+                                                            <span t-if="not o.age">--</span> /
+                                                            <span t-esc="o.gender" t-if="o.gender"/>
+                                                            <span t-if="not o.gender">--</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                            <!-- Right Side -->
+                                            <td style="width:50%; vertical-align:top; padding-left:15px;">
+                                                <table style="width:100%; border:none;">
+                                                    <tr>
+                                                        <td style="width:35%;"><strong>Report Date</strong></td>
+                                                        <td style="width:5%;">:</td>
+                                                        <td>
+                                                            <span t-esc="o.result_date" t-if="o.result_date"/>
+                                                            <span t-if="not o.result_date">N/A</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="width:35%;"><strong>Referred By</strong></td>
+                                                        <td style="width:5%;">:</td>
+                                                        <td>
+                                                            <span t-esc="o.referred_by" t-if="o.referred_by"/>
+                                                            <span t-if="not o.referred_by">-</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="width:35%;"><strong>Ref. No</strong></td>
+                                                        <td style="width:5%;">:</td>
+                                                        <td>
+                                                            <span t-esc="o.reference_no" t-if="o.reference_no"/>
+                                                            <span t-if="not o.reference_no">-</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- CENTERED CATEGORY NAME -->
+                                <div class="category-header">
+                                    <span t-esc="category.name"/>
+                                </div>
+
+                                <!-- 3. LOOP THROUGH TESTS BELONGING TO THIS CATEGORY -->
+                                <t t-foreach="o.test_ids.filtered(lambda t: t.category_id == category)" t-as="test">
+
+                                    <!-- Filter Lines for this specific Test -->
+                                    <t t-set="test_lines" t-value="o.result_line_ids.filtered(lambda l: l.test_type_id == test)"/>
+
+                                    <t t-if="test_lines">
+                                        <!-- Test Name Heading -->
+                                        <div class="test-heading">
+                                            <span t-esc="test.name"/>
+                                        </div>
+
+                                        <!-- Results Table -->
+                                        <table class="table table-bordered table-sm report-table-sm" style="width:100%; margin-bottom: 25px;">
+                                            <thead style="background-color: #f0f0f0;">
                                                 <tr>
-                                                    <td style="width:30%;"><strong>Lab. No</strong></td>
-                                                    <td style="width:5%;">:</td>
-                                                    <td><span t-esc="o.result_no"/></td>
+                                                    <th style="width:40%;">Investigation</th>
+                                                    <th style="width:20%; text-align:center;">Result</th>
+                                                    <th style="width:20%; text-align:center;">Unit</th>
+                                                    <th style="width:20%; text-align:center;">Reference Range</th>
                                                 </tr>
-                                                <tr>
-                                                    <td style="width:30%;"><strong>Name</strong></td>
-                                                    <td style="width:5%;">:</td>
-                                                    <td>
-                                                        <span t-esc="o.patient_id.name" t-if="o.patient_id"/>
-                                                        <span t-if="not o.patient_id">N/A</span>
+                                            </thead>
+                                            <tbody>
+                                                <tr t-foreach="test_lines" t-as="line">
+                                                    <td style="padding: 8px;">
+                                                        <t t-esc="line.parameter_id.name" t-if="line.parameter_id"/>
+                                                    </td>
+                                                    <td style="text-align:center; padding: 8px; font-weight:bold;">
+                                                        <t t-esc="line.result_value" t-if="line.result_value"/>
+                                                    </td>
+                                                    <td style="text-align:center; padding: 8px;">
+                                                        <t t-esc="line.uom_id.name" t-if="line.uom_id"/>
+                                                    </td>
+                                                    <td style="text-align:center; padding: 8px;">
+                                                        <t t-esc="line.normal_range" t-if="line.normal_range"/>
                                                     </td>
                                                 </tr>
-                                                <tr>
-                                                    <td style="width:30%;"><strong>Age/Gender</strong></td>
-                                                    <td style="width:5%;">:</td>
-                                                    <td>
-                                                        <span t-esc="o.age" t-if="o.age"/>
-                                                        <span t-if="not o.age">--</span>
-                                                        /
-                                                        <span t-esc="o.gender" t-if="o.gender"/>
-                                                        <span t-if="not o.gender">--</span>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                        <!-- Right Side -->
-                                        <td style="width:50%; vertical-align:top;">
-                                            <table style="width:100%; border:none;">
-                                                <tr>
-                                                    <td style="width:30%;"><strong>Date</strong></td>
-                                                    <td style="width:5%;">:</td>
-                                                    <td>
-                                                        <span t-esc="o.result_date" t-if="o.result_date"/>
-                                                        <span t-if="not o.result_date">N/A</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="width:50%;"><strong>Ref. By</strong></td>
-                                                    <td style="width:5%;">:</td>
-                                                    <td>
-                                                        <span t-esc="o.referred_by" t-if="o.referred_by"/>
-                                                        <span t-if="not o.referred_by">-</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="width:50%;"><strong>Ref. No</strong></td>
-                                                    <td style="width:5%;">:</td>
-                                                    <td>
-                                                        <span t-esc="o.reference_no" t-if="o.reference_no"/>
-                                                        <span t-if="not o.reference_no">-</span>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <br/>
+                                            </tbody>
+                                        </table>
+                                    </t>
+                                </t>
 
-                            <!-- Test Results Table -->
-                            <table class="table table-bordered table-sm report-table-sm" style="width:100%;">
-                                <thead>
-                                    <tr>
-                                        <th style="width:40%;">Investigation</th>
-                                        <th style="width:20%;">Result</th>
-                                        <th style="width:20%;">Unit</th>
-                                        <th style="width:20%;">Reference Range</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr t-foreach="o.result_line_ids" t-as="line">
-                                        <td>
-                                            <t t-esc="line.parameter_id.name" t-if="line.parameter_id"/>
-                                        </td>
-                                        <td>
-                                            <t t-esc="line.result_value" t-if="line.result_value"/>
-                                        </td>
-                                        <td>
-                                            <t t-esc="line.uom_id.name" t-if="line.uom_id"/>
-                                        </td>
-                                        <td>
-                                            <t t-esc="line.normal_range" t-if="line.normal_range"/>
-                                        </td>
-                                    </tr>
-                                    <tr t-if="not o.result_line_ids">
-                                        <td colspan="4" class="text-center" style="padding:20px;">
-                                            <strong>No test results available</strong>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                <!-- PROFESSIONAL SIGNATURE SECTION -->
+                                <div class="signature-block">
+                                    <table style="width:100%; border:none;">
+                                        <tr>
+                                            <!-- Technician -->
+                                            <td style="width:50%; text-align:center; vertical-align:bottom; padding: 0 20px;">
+                                                <div class="signature-title">Lab Technician</div>
+                                                <div style="height: 40px;"></div> <!-- Space for wet signature -->
+                                                <div class="signature-line"></div>
+                                                <div class="signature-sub">Signature &amp; Date</div>
+                                            </td>
 
-                            <br/>
-                            <br/>
+                                            <!-- Pathologist / Authorized -->
+                                            <td style="width:50%; text-align:center; vertical-align:bottom; padding: 0 20px;">
+                                                <div class="signature-title">Authorized By</div>
+                                                <div style="height: 40px;"></div> <!-- Space for wet signature -->
+                                                <div class="signature-line"></div>
+                                                <div class="signature-sub">Signature &amp; Date</div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
 
-                            <!-- Signature Section -->
-                            <table style="width:100%; border:none; margin-top:40px;">
-                                <tr>
-                                    <td style="width:50%; text-align:center; vertical-align:top;">
-                                        <p style="margin-bottom:50px;"><strong>Technician Signature</strong></p>
-                                        <p style="border-top:1px solid black; padding-top:5px;">_____________________</p>
-                                        <p style="font-size:11px;">Name &amp; Date</p>
-                                    </td>
-                                    <td style="width:50%; text-align:center; vertical-align:top;">
-                                        <p style="margin-bottom:50px;"><strong>Authorized By</strong></p>
-                                        <p style="border-top:1px solid black; padding-top:5px;">_____________________</p>
-                                        <p style="font-size:11px;">Name &amp; Date</p>
-                                    </td>
-                                </tr>
-                            </table>
+                                <div class="report-footer" style="text-align:center; margin-top:40px; border-top: 1px solid #eee; padding-top:10px;">
+                                    <i>This is a computer-generated report. Valid without a digital signature if verified.</i>
+                                </div>
 
-                            <br/>
-                            <p class="report-footer" style="text-align:center; margin-top:30px;">
-                                <i>This is a system generated report.</i>
-                            </p>
+                                <!-- 4. PAGE BREAK LOGIC -->
+                                <t t-if="not category_last">
+                                    <div style="page-break-after: always;"/>
+                                </t>
+
+                            </t> <!-- END CATEGORY LOOP -->
+
+                            <!-- Fallback if no lines -->
+                            <t t-if="not o.result_line_ids">
+                                <div class="text-center" style="padding:40px; border:1px solid #ddd; margin-top:20px;">
+                                    <strong>No test results available for this patient.</strong>
+                                </div>
+                            </t>
                         </div>
                     </t>
                 </t>
             </t>
         </template>
-
     </data>
 </odoo>
