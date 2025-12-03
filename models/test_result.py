@@ -76,7 +76,8 @@ class TestResult(models.Model):
     total_amount = fields.Float(
         string="Total Amount",
         compute='_compute_total_amount',
-        store=True
+        store=True,
+        tracking=True
     )
 
     # --- Compute Methods ---
