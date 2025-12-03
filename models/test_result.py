@@ -190,8 +190,8 @@ class TestResult(models.Model):
         self.write({'state': 'draft'})
 
     def action_edit_result(self):
-        """Allow editing of result by resetting to draft"""
-        self.write({'state':'draft'})
+        """Allow editing of result by resetting to billed"""
+        self.write({'state':'billed'})
 
     # --- Internal Methods ---
 
