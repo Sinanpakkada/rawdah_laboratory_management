@@ -138,7 +138,7 @@
                                             <td class="val-col">: <span t-esc="o.referred_by or '-'"/></td>
                                         </tr>
                                         <tr>
-                                            <td class="label-col">OP. Number</td>
+                                            <td class="label-col">Customer. No</td>
                                             <td class="val-col">: <span t-esc="o.reference_no or '-'"/></td>
                                         </tr>
                                     </table>
