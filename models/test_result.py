@@ -2,6 +2,7 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 import logging
+import base64
 
 _logger = logging.getLogger(__name__)
 
@@ -198,6 +199,28 @@ class TestResult(models.Model):
     def action_edit_result(self):
         """Allow editing of result by resetting to billed"""
         self.write({'state':'billed'})
+
+    #Send Result by Email
+    def action_send_result_email(self):
+        """ Opens a wizard to compose an email, with the PDF attached (Odoo 17) """
+        self.ensure_one()
+        template_id = self.env.ref('rawdah_laboratory_management.email_template_test_result').id
+
+        return {
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'mail.compose.message',
+            'views': [(False, 'form')],
+            'view_id': False,
+            'target': 'new',
+            'context': {
+                'default_model': 'test.result',
+                'default_res_ids': self.ids,
+                'default_template_id': template_id,
+                'default_composition_mode': 'comment',
+                'force_email': True
+            },
+        }
 
     # --- Internal Methods ---
 

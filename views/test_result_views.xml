@@ -30,6 +30,13 @@
                             invisible="state not in ('draft', 'billed', 'in_progress')" groups="rawdah_laboratory_management.group_lab_manager"/>
                     <button name="action_reset_to_draft" type="object" string="Reset to Draft"
                             invisible="state != 'cancel'"/>
+                    <button name="action_send_result_email"
+                            string="Send by Email"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-envelope"
+                            data-hotkey="g"
+                            invisible="state != 'done'"/>
                     <button name="action_edit_result" type="object" string="Edit Result"
                             invisible="state != 'done'"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,billed,done"/>

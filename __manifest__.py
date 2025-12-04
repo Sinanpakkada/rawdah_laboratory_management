@@ -32,6 +32,7 @@ Key Features:
         'security/security.xml',
         'security/ir.model.access.csv',
         'data/sequence.xml',
+        'data/mail_template_data.xml',
         'views/res_partner_inherit_views.xml',
         'views/test_type_views.xml',
         'views/test_result_views.xml',
