@@ -27,7 +27,7 @@
                     <button name="action_print_result" type="object" string="Print Result"
                             class="btn-primary" invisible="state not in ('billed', 'done')"/>
                     <button name="action_cancel_test" type="object" string="Cancel"
-                            invisible="state not in ('draft', 'billed', 'in_progress')"/>
+                            invisible="state not in ('draft', 'billed', 'in_progress')" groups="rawdah_laboratory_management.group_lab_manager"/>
                     <button name="action_reset_to_draft" type="object" string="Reset to Draft"
                             invisible="state != 'cancel'"/>
                     <button name="action_edit_result" type="object" string="Edit Result"

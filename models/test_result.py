@@ -177,6 +177,11 @@ class TestResult(models.Model):
         return self.env.ref('rawdah_laboratory_management.action_test_result_report_result').report_action(self)
 
     def action_cancel_test(self):
+        """Cancel the test - Manager Only"""
+        # Check if user belongs to the manager group
+        if not self.env.user.has_group('rawdah_laboratory_management.group_lab_manager'):
+            raise UserError(_("Only a Laboratory Manager can cancel a test."))
+
         """Cancel the test"""
         for rec in self:
             if rec.state == 'done':
